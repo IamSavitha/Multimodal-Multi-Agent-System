@@ -1,12 +1,10 @@
-# Part 3: Multimodal Multi-Agent System for Image Understanding and Generation
-
-**DATA 266: Generative Model — Spring 2026 | Lab 2**
+# 1. Multimodal Multi-Agent System for Image Understanding and Generation
 
 ---
 
 ## Overview
 
-This section presents a **Multimodal Multi-Agent System** that coordinates four specialized agents in a sequential pipeline to analyze images, refine user prompts, generate image variations, and evaluate results. The system demonstrates how multiple agents interact in a coordinated multimodal workflow:
+This project presents a **Multimodal Multi-Agent System** that coordinates four specialized agents in a sequential pipeline to analyze images, refine user prompts, generate image variations, and evaluate results. The system demonstrates how multiple agents interact in a coordinated multimodal workflow:
 
 ```
 Vision Understanding → Prompt Engineering → Image Generation → Critique/Evaluation
@@ -26,7 +24,7 @@ Each agent operates as an independent, modular component with clearly defined in
 
 ---
 
-## 3.1 Vision Understanding Agent
+## 1.1 Vision Understanding Agent
 
 **File:** `agents/vision_agent.py`  
 **Class:** `VisionUnderstandingAgent`  
@@ -62,7 +60,7 @@ The agent wraps the `google-genai` SDK's `Client.models.generate_content()` API 
 
 ---
 
-## 3.2 Prompt Engineering Agent
+## 1.2 Prompt Engineering Agent
 
 **File:** `agents/prompt_agent.py`  
 **Class:** `PromptEngineeringAgent`  
@@ -98,7 +96,7 @@ The agent receives two inputs: (1) the raw user instruction and (2) the complete
 
 ---
 
-## 3.3 Image Generation Agent
+## 1.3 Image Generation Agent
 
 **File:** `agents/generation_agent.py`  
 **Class:** `ImageGenerationAgent`  
@@ -151,7 +149,7 @@ Generate a new image based on the refined prompt from the Prompt Engineering Age
 
 ---
 
-## 3.4 Critique and Evaluation Agent
+## 1.4 Critique and Evaluation Agent
 
 **File:** `agents/evaluation_agent.py`  
 **Class:** `CritiqueEvaluationAgent`  
@@ -200,7 +198,7 @@ Both images (source + generated) along with the prompt and automatic scores are 
 
 ---
 
-## 3.5 Integration and Execution
+## 1.5 Integration and Execution
 
 **File:** `orchestrator.py`  
 **Class:** `MultiAgentOrchestrator`  
