@@ -25,7 +25,7 @@ flowchart LR
     PA --> GA[Generation agent<br/>Stable Diffusion 1.5<br/>img2img]
     GA --> EA[Critique agent<br/>CLIP ViT-B/32 + Gemini rubric]
     EA --> OUT[/Image + scores + verdict/]
-    OR{{MultiAgentOrchestrator}} -.coordinates.- VA & PA & GA & EA
+    OR{{MultiAgentOrchestrator}} -. coordinates .-> VA
 ```
 
 ## Results
