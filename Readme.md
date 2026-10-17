@@ -86,7 +86,7 @@ Each agent operates as an independent, modular component with clearly defined in
 
 ---
 
-## 1.1 Vision Understanding Agent
+## Vision Understanding Agent
 
 **File:** `agents/vision_agent.py`  
 **Class:** `VisionUnderstandingAgent`  
@@ -95,9 +95,9 @@ Each agent operates as an independent, modular component with clearly defined in
 ### Task
 Analyze an input image and extract key visual information using a vision-language model.
 
-### Requirements Fulfilled
+### Capabilities
 
-| Requirement | Implementation |
+| Capability | Implementation |
 |---|---|
 | Short image caption | Gemini generates a ≤25-word descriptive caption via structured prompt |
 | List of key objects/entities | Comma-separated list of ≥5 key objects extracted from the image |
@@ -122,7 +122,7 @@ The agent wraps the `google-genai` SDK's `Client.models.generate_content()` API 
 
 ---
 
-## 1.2 Prompt Engineering Agent
+## Prompt Engineering Agent
 
 **File:** `agents/prompt_agent.py`  
 **Class:** `PromptEngineeringAgent`  
@@ -131,9 +131,9 @@ The agent wraps the `google-genai` SDK's `Client.models.generate_content()` API 
 ### Task
 Refine the user's instruction into a clearer, richer prompt suitable for image generation.
 
-### Requirements Fulfilled
+### Capabilities
 
-| Requirement | Implementation |
+| Capability | Implementation |
 |---|---|
 | Rewrite the prompt clearly | Gemini rewrites the user instruction as a 30–80 word generation-friendly prompt |
 | Enrich with useful visual details | Incorporates caption, objects, scene description, and VQA answers from the Vision Agent |
@@ -158,7 +158,7 @@ The agent receives two inputs: (1) the raw user instruction and (2) the complete
 
 ---
 
-## 1.3 Image Generation Agent
+## Image Generation Agent
 
 **File:** `agents/generation_agent.py`  
 **Class:** `ImageGenerationAgent`  
@@ -167,9 +167,9 @@ The agent receives two inputs: (1) the raw user instruction and (2) the complete
 ### Task
 Generate a new image based on the refined prompt from the Prompt Engineering Agent.
 
-### Requirements Fulfilled
+### Capabilities
 
-| Requirement | Implementation |
+| Capability | Implementation |
 |---|---|
 | Generate ≥1 output image | Generates 1 image per run (configurable via `num_images`) |
 | Support a simple generation mode | Supports stylization, variation, and enhancement modes (recorded in metadata) |
@@ -211,7 +211,7 @@ Generate a new image based on the refined prompt from the Prompt Engineering Age
 
 ---
 
-## 1.4 Critique and Evaluation Agent
+## Critique and Evaluation Agent
 
 **File:** `agents/evaluation_agent.py`  
 **Class:** `CritiqueEvaluationAgent`  
@@ -220,9 +220,9 @@ Generate a new image based on the refined prompt from the Prompt Engineering Age
 ### Task
 Evaluate the generated image relative to the input image and the refined prompt.
 
-### Requirements Fulfilled
+### Capabilities
 
-| Requirement | Implementation |
+| Capability | Implementation |
 |---|---|
 | Assess visual relevance | CLIP image-to-image similarity score (source vs generated) |
 | Assess prompt faithfulness | CLIP text-image similarity (refined prompt vs generated image) |
@@ -260,15 +260,15 @@ Both images (source + generated) along with the prompt and automatic scores are 
 
 ---
 
-## 1.5 Integration and Execution
+## Integration and Execution
 
 **File:** `orchestrator.py`  
 **Class:** `MultiAgentOrchestrator`  
 **Notebook:** `multimodal_agents.ipynb`
 
-### Requirements Fulfilled
+### Capabilities
 
-| Requirement | Implementation |
+| Capability | Implementation |
 |---|---|
 | Modular design | Each agent is an independent Python class in its own file under `agents/` |
 | Workflow orchestration | `MultiAgentOrchestrator.run()` sequences all 4 agents with intermediate output passing |
@@ -427,14 +427,14 @@ The `MultiAgentOrchestrator` class:
 
 ```
 Multimodal-Multi-Agent-System/
-├── multimodal_agents.ipynb     ← Main deliverable (Jupyter notebook)
+├── multimodal_agents.ipynb     ← End-to-end pipeline notebook
 ├── agents/
 │   ├── __init__.py
-│   ├── vision_agent.py         ← 3.1 Vision Understanding Agent
-│   ├── prompt_agent.py         ← 3.2 Prompt Engineering Agent
-│   ├── generation_agent.py     ← 3.3 Image Generation Agent
-│   └── evaluation_agent.py     ← 3.4 Critique & Evaluation Agent
-├── orchestrator.py             ← 3.5 Integration & Execution
+│   ├── vision_agent.py         ← Vision Understanding Agent
+│   ├── prompt_agent.py         ← Prompt Engineering Agent
+│   ├── generation_agent.py     ← Image Generation Agent
+│   └── evaluation_agent.py     ← Critique & Evaluation Agent
+├── orchestrator.py             ← Integration & Execution
 ├── test_images/                ← Input sample images (auto-downloaded)
 ├── outputs/                    ← Generated images + metadata JSON
 ├── requirements.txt
