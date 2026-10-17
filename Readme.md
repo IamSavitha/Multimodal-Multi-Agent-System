@@ -1,4 +1,66 @@
-# 1. Multimodal Multi-Agent System for Image Understanding and Generation
+# Multimodal Multi-Agent System
+
+> Four cooperating agents (vision understanding → prompt engineering → image generation → critique) that take an image and a plain-English instruction, produce a transformed image, and grade their own output with CLIP and an LLM rubric.
+
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini%202.5%20Flash-8E75B2?logo=googlegemini&logoColor=white)
+![Stable Diffusion](https://img.shields.io/badge/Stable%20Diffusion-v1.5-A020F0)
+![Hugging Face](https://img.shields.io/badge/diffusers%20%7C%20transformers-FFD21E?logo=huggingface&logoColor=black)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white)
+![CLIP](https://img.shields.io/badge/CLIP-ViT--B%2F32-412991)
+
+## Highlights
+
+- **Modular agent pipeline.** Each agent is its own class with typed inputs and outputs, and a `MultiAgentOrchestrator` passes intermediate results through the chain.
+- **Vision → prompt → image.** Gemini 2.5 Flash captions the image and answers visual questions, then rewrites the user's instruction into an optimized Stable Diffusion prompt. SD 1.5 (img2img) generates the result.
+- **Self-evaluation.** The critique agent combines automatic CLIP scores (prompt↔image and source↔image similarity) with a Gemini rubric covering relevance, faithfulness, transformation quality and aesthetics. It then issues an ACCEPT/REVISE verdict (CLIP ≥ 0.20 and rubric ≥ 12/20).
+- **Results:** all 3 test cases were accepted, with rubric scores of **20, 20 and 19 out of 20**, CLIP prompt alignment of **0.58–0.59** and source similarity of **0.79–0.91**.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    IN[/Input image + instruction/] --> VA[Vision agent<br/>Gemini 2.5 Flash<br/>caption + VQA]
+    VA --> PA[Prompt agent<br/>Gemini 2.5 Flash<br/>SD-optimized prompt]
+    PA --> GA[Generation agent<br/>Stable Diffusion 1.5<br/>img2img]
+    GA --> EA[Critique agent<br/>CLIP ViT-B/32 + Gemini rubric]
+    EA --> OUT[/Image + scores + verdict/]
+    OR{{MultiAgentOrchestrator}} -.coordinates.- VA & PA & GA & EA
+```
+
+## Results
+
+| Use case | Mode | CLIP (prompt↔image) | Image similarity | Rubric | Verdict |
+|---|---|---:|---:|---:|---|
+| Tundra → oil painting | stylization | 0.584 | 0.847 | 20/20 | ✅ ACCEPT |
+| NYC → anime | stylization | 0.580 | 0.913 | 20/20 | ✅ ACCEPT |
+| Mona Lisa → cyberpunk | enhancement | 0.589 | 0.792 | 19/20 | ✅ ACCEPT |
+
+![Full pipeline across all three use cases](images/pipeline_all_use_cases.png)
+
+## Quickstart
+
+```bash
+git clone https://github.com/IamSavitha/Multimodal-Multi-Agent-System.git
+cd Multimodal-Multi-Agent-System
+pip install -r requirements.txt
+export GOOGLE_API_KEY=...          # Gemini; a CUDA GPU is recommended for SD 1.5
+```
+
+```python
+from orchestrator import MultiAgentOrchestrator
+
+orch = MultiAgentOrchestrator()
+result = orch.run("images/use_case_1_landscape.jpg",
+                  "Transform this landscape into a dramatic oil painting",
+                  mode="stylization", seed=42)
+```
+
+To run all three use cases end to end, open `multimodal_agents.ipynb`.
+
+---
+
+# Detailed documentation
 
 ---
 
@@ -286,7 +348,6 @@ The `MultiAgentOrchestrator` class:
 
 #### Use Case 1: Style-Guided Transformation — Tundra → Oil Painting
 
-````carousel
 **Input Image — Tundra Landscape**
 
 ![Input: Tundra landscape photograph used as source for oil painting stylization](images/use_case_1_landscape.jpg)
@@ -294,7 +355,7 @@ The `MultiAgentOrchestrator` class:
 - **Instruction:** "Transform this landscape into a dramatic oil painting"
 - **Mode:** Stylization
 - **Seed:** 42
-<!-- slide -->
+
 **Generated Image — Oil Painting Stylization**
 
 ![Output: SD 1.5 generated oil painting stylization of the tundra landscape](images/uc1_generated.png)
@@ -302,15 +363,12 @@ The `MultiAgentOrchestrator` class:
 - **CLIP Score:** 0.5837 | **Image Similarity:** 0.8473
 - **Rubric:** 20.0/20 | **Verdict:** ACCEPT
 - **Generation Time:** 2.5s on CUDA
-````
-
 **Pipeline Trace:** The Vision Agent identified snow, mountains, clouds, fog, and a cold color palette. The Prompt Agent enriched with art-technique terms (impasto brushstrokes, rich textures, painterly quality). SD 1.5 generated a dramatic painterly interpretation with thick brushstroke texture.
 
 ---
 
 #### Use Case 2: Style Transformation — NYC Cityscape → Anime
 
-````carousel
 **Input Image — NYC / Central Park Cityscape**
 
 ![Input: New York City Central Park cityscape photograph used as source for anime stylization](images/use_case_2_cityscape.jpg)
@@ -318,7 +376,7 @@ The `MultiAgentOrchestrator` class:
 - **Instruction:** "Convert this cityscape into anime art style"
 - **Mode:** Stylization
 - **Seed:** 42
-<!-- slide -->
+
 **Generated Image — Anime Stylization**
 
 ![Output: SD 1.5 generated anime style transformation of the NYC cityscape](images/uc2_generated.png)
@@ -326,15 +384,12 @@ The `MultiAgentOrchestrator` class:
 - **CLIP Score:** 0.5796 | **Image Similarity:** 0.9129
 - **Rubric:** 20.0/20 | **Verdict:** ACCEPT
 - **Generation Time:** 1.3s on CUDA
-````
-
 **Pipeline Trace:** Vision Agent extracted urban elements (buildings, trees, paths, skyline). Prompt Agent added anime-specific terms (warm amber, golden light, atmospheric quality). Generation produced a stylized city scene. The highest image-to-image similarity (0.91) indicates strong structural preservation.
 
 ---
 
 #### Use Case 3: Prompt-Based Enhancement — Mona Lisa → Cyberpunk
 
-````carousel
 **Input Image — Mona Lisa Portrait**
 
 ![Input: Mona Lisa portrait photograph used as source for cyberpunk enhancement](images/use_case_3_portrait.jpg)
@@ -342,7 +397,7 @@ The `MultiAgentOrchestrator` class:
 - **Instruction:** "Reimagine this portrait with cyberpunk neon-lit enhancement"
 - **Mode:** Enhancement
 - **Seed:** 999
-<!-- slide -->
+
 **Generated Image — Cyberpunk Enhancement**
 
 ![Output: SD 1.5 generated cyberpunk neon-lit enhancement of the Mona Lisa portrait](images/uc3_generated.png)
@@ -350,8 +405,6 @@ The `MultiAgentOrchestrator` class:
 - **CLIP Score:** 0.5892 | **Image Similarity:** 0.7916
 - **Rubric:** 19.0/20 | **Verdict:** ACCEPT
 - **Generation Time:** 1.3s on CUDA
-````
-
 **Pipeline Trace:** Vision Agent identified the Renaissance portrait subject and subdued palette. Prompt Agent injected cyberpunk visual vocabulary (neon lights, futuristic enhancements, neon-lit city). Generation produced a neon-enhanced portrait variant. This use case achieved the highest CLIP prompt-faithfulness score (0.5892).
 
 ---
@@ -373,7 +426,7 @@ The `MultiAgentOrchestrator` class:
 ## File Structure
 
 ```
-Part_3/
+Multimodal-Multi-Agent-System/
 ├── multimodal_agents.ipynb     ← Main deliverable (Jupyter notebook)
 ├── agents/
 │   ├── __init__.py
